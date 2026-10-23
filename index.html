@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1E88E5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Contratti">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Contratti</title>
+<style>
+:root{--bg:#fff;--fg:#1c1b1f;--mut:#6b6b73;--card:#f2f3f6;--ln:#d9dbe2;--ac:#1E88E5;color-scheme:light dark}
+@media(prefers-color-scheme:dark){:root{--bg:#121316;--fg:#e8e8ec;--mut:#a3a3ad;--card:#1e2025;--ln:#34363d}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:16px/1.4 system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);padding:env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom))}
+header{position:sticky;top:env(safe-area-inset-top);background:var(--bg);display:flex;align-items:center;gap:6px;padding:10px 12px;z-index:2;max-width:640px;margin:auto}
+h1{font-size:21px;margin:0 auto 0 4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h3{font-size:15px;margin:20px 0 8px}
+main{padding:0 16px 16px;max-width:640px;margin:auto}
+.card{background:var(--card);border-left:8px solid var(--c);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:grid;gap:3px}
+small,.mut{color:var(--mut);font-size:13px}.late{color:#d32f2f!important}
+progress{width:100%;accent-color:var(--c)}
+i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;flex:none}
+.al{background:#fff3cd;color:#3d2e00;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px}
+.al div{display:flex;align-items:center;margin-top:6px}
+.due,.lg{display:flex;align-items:center;background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.due>div{flex:1;display:grid}.lg{background:none;padding:6px 0;margin:0}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.wk,.gr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}.wk{font-size:12px;color:var(--mut)}
+.day{aspect-ratio:1;border:0;border-radius:8px;background:none;color:var(--fg);font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0}
+.day.sel{background:color-mix(in srgb,var(--ac) 25%,transparent)}.day.td{outline:1px solid var(--ac)}
+.day em{height:8px;display:flex}.day i{width:6px;height:6px;margin:0 1px}
+.ms{display:block;border-left:2px solid color-mix(in srgb,var(--c) 40%,transparent);margin-left:9px;padding:0 0 14px 18px;position:relative}
+.ms::before{content:"";position:absolute;left:-9px;top:1px;width:16px;height:16px;border-radius:50%;border:2px solid var(--c);background:var(--bg)}
+.ms.done::before{background:var(--c)}
+.ms summary{display:flex;justify-content:space-between;gap:8px;cursor:pointer;list-style:none}
+.ms summary::-webkit-details-marker{display:none}.ms summary span{color:var(--mut);font-size:13px}
+label{display:grid;gap:4px;font-size:13px;color:var(--mut);margin-bottom:12px}
+input,select{font:16px system-ui,sans-serif;padding:12px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+label.ck{display:flex;align-items:center;gap:10px;color:var(--fg);font-size:15px;margin:8px 0 0}
+input[type=checkbox]{width:22px;height:22px;padding:0;flex:none}
+.b1{width:100%;padding:14px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:600 16px system-ui,sans-serif}
+.b2{padding:8px 12px;border:1px solid var(--ln);border-radius:10px;background:none;color:var(--fg);font:14px system-ui,sans-serif;cursor:pointer}
+.ic{border:0;background:none;color:var(--fg);font-size:24px;padding:4px 8px}
+.row{display:flex;gap:8px;margin:16px 0 80px}label.b2{display:inline-block;margin:0;color:var(--fg)}
+.fab{position:fixed;right:20px;bottom:calc(76px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:16px;border:0;background:var(--ac);color:#fff;font-size:30px;box-shadow:0 2px 8px #0004}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:14px;border:0;background:none;color:var(--mut);font:inherit}nav .on{color:var(--ac);font-weight:600}
+</style>
+</head>
+<body>
+<header id="hd"></header>
+<main id="app"></main>
+<nav id="nv"><button id="n1" onclick="rep('list')">Contratti</button><button id="n2" onclick="rep('cal')">Calendario</button></nav>
+<script>
+const PAL=['#1E88E5','#E53935','#43A047','#FB8C00','#8E24AA','#00ACC1','#D81B60','#6D4C41','#3949AB','#7CB342','#FFB300','#546E7A'];
+const TY={F:{l:'Fornitura'},S:{l:'Servizio',per:1},P:{l:'Fornitura e posa in opera',one:1},M:{l:'Fornitura, posa in opera e manutenzione',one:1,per:1}};
+const MO={adre:['Accertamento alla regolare esecuzione','accertamento'],att:['Attestato d’esecuzione','attestato'],cre:['Certificato di regolare esecuzione','certificato']};
+let db=[];try{db=JSON.parse(localStorage.getItem('contratti'))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem('contratti',JSON.stringify(db))}catch(e){}};
+const $=id=>document.getElementById(id);
+const E=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const d2s=d=>d.toISOString().slice(0,10),pd=s=>new Date(s+'T00:00:00Z');
+const addD=(s,n)=>{const d=pd(s);d.setUTCDate(d.getUTCDate()+n);return d2s(d)};
+const addM=(s,n)=>{const d=pd(s),g=d.getUTCDate();d.setUTCDate(1);d.setUTCMonth(d.getUTCMonth()+n);const l=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();d.setUTCDate(Math.min(g,l));return d2s(d)};
+const fmt=s=>s.split('-').reverse().join('/');
+const today=()=>{const d=new Date();return d2s(new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())))};
+const cl=(v,a,b,d)=>{v=parseInt(v);return isNaN(v)?d:Math.min(b,Math.max(a,v))};
+const get=id=>db.find(c=>c.id==id),col=c=>PAL[c.col%PAL.length];
+const nc=()=>{const u=db.map(c=>c.col);for(let i=0;i<PAL.length;i++)if(!u.includes(i))return i;return db.length%PAL.length};
+const done=(c,m)=>m.k.every(k=>c.ck[m.id+':'+k[0]]);
+const byDue=(a,b)=>a.m.due<b.m.due?-1:1;
+
+/* Flusso: fasi amministrative + pagamenti (accertamento / attestato / certificato) */
+function ms(c){
+ const t=TY[c.type],o=[];
+ o.push({id:'adm',t:'Fase amministrativa',k:[['richiesta','Richiesta di autorizzazione alla spesa'],['ipotesi','Ipotesi d’ordine']]});
+ if(!t.one&&!t.per){o.push({id:'sup',t:'Ordine e consegna',k:[['ordine','Ordine'],['ricezione','Ricezione dell’ordine'],['bolla','Bolla'],['consegna','Consegna informatica/contabile'],['visto','Visto fattura']]});return o}
+ const P=(id,t,m,ref)=>({id,t,pay:1,ref,due:ref?addD(ref,c.days):'',k:[['doc',MO[m][0]],['consegna','Consegna informatica/contabile'],['visto','Nulla osta / visto in fattura']]});
+ if(t.one)o.push(P('one','Fornitura e posa in opera','cre',c.start));
+ if(t.per)for(let i=1;i<=c.months;i++){const m=(i==c.months||i%c.cycle==0)?c.close:c.mid;o.push(P('p'+i,`${t.one?'Manutenzione':'Servizio'}, mese ${i}: ${MO[m][1]}`,m,c.start?addM(c.start,i):''))}
+ return o}
+const dues=()=>db.flatMap(c=>ms(c).filter(m=>m.pay&&m.due).map(m=>({c,m})));
+const prog=c=>{const a=ms(c).flatMap(m=>m.k.map(k=>!!c.ck[m.id+':'+k[0]]));return[a.filter(Boolean).length,a.length]};
+const nxt=c=>ms(c).filter(m=>m.pay&&m.due&&!done(c,m)).map(m=>({c,m})).sort(byDue)[0];
+
+/* Navigazione (il tasto Indietro di Android/iPhone funziona) */
+let v='list',cid=null,sel=today(),mon=today().slice(0,7),opn=null;
+function set(a,id){v=a;cid=id||null;opn=null;render()}
+function go(a,id){history.pushState({v:a,id},'');set(a,id);scrollTo(0,0)}
+function rep(a,id){history.replaceState({v:a,id},'');set(a,id);scrollTo(0,0)}
+onpopstate=e=>set(e.state?e.state.v:'list',e.state?e.state.id:null);
+const hd=(t,b,a='')=>{$('hd').innerHTML=(b?'<button class=ic onclick="history.back()">‹</button>':'')+`<h1>${E(t)}</h1>`+a};
+function render(){
+ $('n1').className=v=='list'?'on':'';$('n2').className=v=='cal'?'on':'';
+ $('nv').style.display=(v=='list'||v=='cal')?'flex':'none';
+ const c=get(cid);
+ if(v=='detail'&&!c)return set('list');
+ if(v=='list')vList();else if(v=='cal')vCal();else if(v=='detail')vDetail(c);else vForm(c)}
+
+/* Elenco contratti */
+const card=c=>{const[d,t]=prog(c),n=nxt(c);return`<div class=card style="--c:${col(c)}" onclick="go('detail','${c.id}')"><b>${E(c.name)}</b><small>CIG ${E(c.cig)||'—'} · ${E(c.who)||'—'}</small><small>${TY[c.type].l}, ${c.months} mesi</small><progress value=${d} max=${t}></progress><small>${d} di ${t} passaggi completati</small>${n?`<small class="${n.m.due<today()?'late':''}">Prossimo pagamento entro ${fmt(n.m.due)}</small>`:''}</div>`};
+function vList(){
+ hd('Contratti');
+ const soon=dues().filter(x=>!done(x.c,x.m)&&x.m.due<=addD(today(),7)).sort(byDue);
+ let h='';
+ if(soon.length)h+=`<div class=al><b>Scadenze entro 7 giorni</b>${soon.map(x=>`<div onclick="go('detail','${x.c.id}')"><i style="background:${col(x.c)}"></i><span>${fmt(x.m.due)} · ${E(x.c.name)}: ${E(x.m.t)}${x.m.due<today()?' (scaduta)':''}</span></div>`).join('')}</div>`;
+ h+=db.length?db.map(card).join(''):'<p class=mut>Nessun contratto. Tocca + per aggiungere il primo.</p>';
+ h+='<div class=row><button class=b2 onclick=bk()>Backup</button><label class=b2>Ripristina<input type=file accept=.json hidden onchange=rs(this)></label></div><button class=fab onclick="go(\'form\')">+</button>';
+ $('app').innerHTML=h}
+
+/* Calendario */
+const mv=k=>{const[y,m]=mon.split('-').map(Number);mon=d2s(new Date(Date.UTC(y,m-1+k,1))).slice(0,7);vCal()};
+function vCal(){
+ hd('Calendario',0,'<button class=b2 onclick=ex()>Esporta .ics</button>');
+ const[y,mo]=mon.split('-').map(Number),first=new Date(Date.UTC(y,mo-1,1)),off=(first.getUTCDay()+6)%7,n=new Date(Date.UTC(y,mo,0)).getUTCDate(),all=dues(),td=today();
+ let g='';for(let i=0;i<off;i++)g+='<span></span>';
+ for(let d=1;d<=n;d++){const s=`${mon}-${String(d).padStart(2,'0')}`,cs=[...new Set(all.filter(x=>x.m.due==s).map(x=>col(x.c)))].slice(0,3);
+  g+=`<button class="day${s==sel?' sel':''}${s==td?' td':''}" onclick="sel='${s}';vCal()">${d}<em>${cs.map(c=>`<i style="background:${c}"></i>`).join('')}</em></button>`}
+ const nm=new Intl.DateTimeFormat('it-IT',{month:'long',year:'numeric',timeZone:'UTC'}).format(first);
+ const row=(x,sd)=>`<div class=due onclick="go('detail','${x.c.id}')"><i style="background:${col(x.c)}"></i><div><b>${E(x.c.name)}</b><small>${E(x.m.t)}</small>${sd?`<small class="${x.m.due<td&&!done(x.c,x.m)?'late':''}">Pagamento entro ${fmt(x.m.due)}</small>`:''}</div>${done(x.c,x.m)?'✓':''}</div>`;
+ const day=all.filter(x=>x.m.due==sel),up=all.filter(x=>!done(x.c,x.m)&&x.m.due>=td).sort(byDue).slice(0,5);
+ $('app').innerHTML=`<div class=mh><button class=ic onclick="mv(-1)">‹</button><b>${nm}</b><button class=ic onclick="mv(1)">›</button></div><div class=wk>${[...'LMMGVSD'].map(x=>`<span>${x}</span>`).join('')}</div><div class=gr>${g}</div><h3>Scadenze del ${fmt(sel)}</h3>${day.map(x=>row(x,0)).join('')||'<p class=mut>Nessuna scadenza in questa data.</p>'}${up.length?'<h3>Prossime scadenze</h3>'+up.map(x=>row(x,1)).join(''):''}<h3>Legenda</h3>${db.map(c=>`<div class=lg onclick="go('detail','${c.id}')"><i style="background:${col(c)}"></i>${E(c.name)}</div>`).join('')||'<p class=mut>Aggiungi un contratto per vederlo qui.</p>'}`}
+
+/* Dettaglio con milestone da spuntare */
+function vDetail(c){
+ const t=TY[c.type],m=ms(c);
+ if(!opn){const cur=m.find(x=>!done(c,x));opn=new Set(cur?[cur.id]:[])}
+ hd(c.name,1,`<button class=ic onclick="go('form','${c.id}')">✎</button><button class=ic onclick="rm('${c.id}')">🗑</button>`);
+ const blk=x=>`<details class="ms${done(c,x)?' done':''}" ${opn.has(x.id)?'open':''} ontoggle="this.open?opn.add('${x.id}'):opn.delete('${x.id}')"><summary><b>${E(x.t)}</b><span>${x.k.filter(k=>c.ck[x.id+':'+k[0]]).length}/${x.k.length}</span></summary>${x.pay?`<small class="${x.due&&x.due<today()&&!done(c,x)?'late':''}">${x.due?`${x.id=='one'?'Completamento':'Fine periodo'} ${fmt(x.ref)}. Pagamento entro ${fmt(x.due)}`:'Imposta la data in alto'}</small>`:''}${x.k.map(k=>`<label class=ck><input type=checkbox ${c.ck[x.id+':'+k[0]]?'checked':''} onchange="tk('${c.id}','${x.id}:${k[0]}')">${k[1]}</label>`).join('')}</details>`;
+ $('app').innerHTML=`<div class=card style="--c:${col(c)}"><b>${t.l}</b><small>CIG: ${E(c.cig)||'—'}</small><small>Affidatario: ${E(c.who)||'—'}</small><small>Durata: ${c.months} mesi. Pagamento entro ${c.days} giorni.</small>${t.one||t.per?`<label style="margin:8px 0 0">${t.per&&!t.one?'Inizio servizio':'Completamento opera'}<input type=date value="${c.start||''}" onchange="setStart(this.value)"></label>${c.start?'':'<small>Con la data il calendario calcola le scadenze dei pagamenti.</small>'}`:''}</div><div style="--c:${col(c)}">${m.map(blk).join('')}</div>`}
+function tk(id,key){const c=get(id);c.ck[key]=!c.ck[key];save();render()}
+function setStart(s){get(cid).start=s;save();render()}
+function rm(id){if(confirm('Eliminare il contratto?')){db=db.filter(c=>c.id!=id);save();history.back()}}
+
+/* Form nuovo / modifica */
+function vForm(c){
+ const x=c||{type:'F',months:12,days:30,cycle:6,mid:'adre',close:'cre'};
+ hd(c?'Modifica contratto':'Nuovo contratto',1);
+ const S=(id,o,val)=>`<select id=${id}>${o.map(([k,l])=>`<option value=${k} ${k==val?'selected':''}>${l}</option>`).join('')}</select>`,mo=Object.entries(MO).map(([k,a])=>[k,a[0]]);
+ $('app').innerHTML=`<form onsubmit="return sv(event,'${c?c.id:''}')">
+<label>Nome contratto<input id=fn required value="${E(x.name)}"></label>
+<label>CIG<input id=fg value="${E(x.cig)}" style="text-transform:uppercase"></label>
+<label>Affidatario<input id=fw value="${E(x.who)}"></label>
+<label>Tipo di contratto${S('ft',Object.entries(TY).map(([k,a])=>[k,a.l]),x.type)}</label>
+<label>Durata (mesi)<input id=fm type=number min=1 max=120 value=${x.months}></label>
+<label class=nf>Pagamento entro (giorni dalla fine periodo o dal completamento)<input id=fd type=number min=0 max=365 value=${x.days}></label>
+<div class=pr><label>Ciclo di chiusura (mesi). Es. 6: chiusura ai mesi 6, 12, 18…<input id=fy type=number min=1 max=120 value=${x.cycle}></label>
+<label>Modalità nei mesi intermedi${S('fi',mo,x.mid)}</label><label>Modalità di chiusura del ciclo${S('fc',mo,x.close)}</label></div>
+<button class=b1>Salva contratto</button></form>`;
+ $('ft').onchange=tf;tf()}
+function tf(){const t=TY[$('ft').value];document.querySelectorAll('.nf').forEach(e=>e.hidden=!(t.one||t.per));document.querySelectorAll('.pr').forEach(e=>e.hidden=!t.per)}
+function sv(ev,id){ev.preventDefault();
+ const c=id?get(id):{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),col:nc(),ck:{},start:''};
+ Object.assign(c,{name:$('fn').value.trim(),cig:$('fg').value.trim().toUpperCase(),who:$('fw').value.trim(),type:$('ft').value,months:cl($('fm').value,1,120,12),days:cl($('fd').value,0,365,30),cycle:cl($('fy').value,1,120,6),mid:$('fi').value,close:$('fc').value});
+ if(!id)db.push(c);save();rep('detail',c.id);return false}
+
+/* Backup, ripristino e calendario (.ics con promemoria 7 giorni prima) */
+const dl=(txt,name,type)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()};
+const bk=()=>dl(JSON.stringify(db),'contratti-backup.json','application/json');
+function rs(i){const f=i.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);if(!Array.isArray(d))throw 0;db=d;save();render()}catch(e){alert('File non valido')}})}
+function ex(){
+ const x=dues().filter(x=>!done(x.c,x.m));if(!x.length)return alert('Nessuna scadenza da esportare. Imposta le date nei contratti.');
+ const z=s=>String(s).replace(/[\\,;]/g,'\\$&'),st=new Date().toISOString().replace(/[-:]|\.\d+/g,'');
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Contratti//IT'];
+ x.forEach(x=>L.push('BEGIN:VEVENT',`UID:${x.c.id}-${x.m.id}@contratti`,`DTSTAMP:${st}`,`DTSTART;VALUE=DATE:${x.m.due.replace(/-/g,'')}`,`SUMMARY:${z(x.c.name+': '+x.m.t)}`,`DESCRIPTION:${z('CIG '+x.c.cig)}`,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Scadenza pagamento tra 7 giorni','TRIGGER:-P6DT15H','END:VALARM','END:VEVENT'));
+ L.push('END:VCALENDAR');dl(L.join('\r\n'),'scadenze-contratti.ics','text/calendar')}
+
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+set('list');
+</script>
+</body>
+</html>
